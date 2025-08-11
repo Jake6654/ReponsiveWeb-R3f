@@ -5,6 +5,7 @@ import BearToHoney from "./BearToHoney";
 import { CameraControls } from "@react-three/drei";
 import * as THREE from "three";
 import MovingSphere from "./MovingSphere";
+import MovingSpheres from "./MovingSpheres";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
       >
         {/* <ThreeElement /> */}
         {/* <BearToHoney /> */}
-        <MovingSphere />
+        <MovingSpheres />
         <CameraControls />
         <axesHelper args={[7]} />
         <gridHelper
