@@ -59,10 +59,14 @@ export default function MovingSphere() {
       if (velocity > 0.1) {
         velocity = 0.1;
       }
+
+      
       velocity += acceleration;
       console.log("velocity : ", velocity);
+      // 계속 변화는 값인 가속도 velocity 을 주어 가속 운동을 함
       const addPos = dirVec.clone().multiplyScalar(velocity);
 
+      // 위치를 계속 변경해주는 함수
       posA.add(addPos);
     }
   });

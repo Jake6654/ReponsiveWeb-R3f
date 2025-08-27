@@ -7,6 +7,7 @@ import * as THREE from "three";
 import MovingSphere from "./MovingSphere";
 import MovingSpheres from "./MovingSpheres";
 
+const isDebug = true;
 function App() {
   return (
     <>
@@ -21,11 +22,17 @@ function App() {
         {/* <BearToHoney /> */}
         <MovingSpheres />
         <CameraControls />
-        <axesHelper args={[7]} />
-        <gridHelper
-          rotation={[THREE.MathUtils.degToRad(90), 0, 0]}
-          args={[100, 100, "black"]}
-        />
+        {isDebug ? ( // debug mode
+          <>
+            <axesHelper args={[7]} />
+            <gridHelper
+              rotation={[THREE.MathUtils.degToRad(90), 0, 0]}
+              args={[100, 100, "black"]}
+            />
+          </>
+        ) : (
+          <></>
+        )}
       </Canvas>
     </>
   );
