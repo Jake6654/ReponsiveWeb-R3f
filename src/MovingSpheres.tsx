@@ -17,12 +17,14 @@ let prevUnprojectedPoint = new THREE.Vector3();
 export default function MovingSpheres({ isDebug = true }) {
   const { viewport, scene, camera, pointer } = useThree();
   const pointerBallRadius = 2.0;
-  const ballRadius = 0.4;
-  const posLimitX = viewport.width * 0.5 - ballRadius;
-  const posLimitY = viewport.height * 0.5 - ballRadius;
+  // const ballRadius = 0.4;
+  const posLimitX = viewport.width * 0.5;
+  const posLimitY = viewport.height * 0.5;
   const groupRef = useRef<THREE.Group>(null); // ball 위치 참조
   const pointerSphereRef = useRef<THREE.Mesh>(null); // ball 위치 참조
 
+  // random size ball
+  const ballRadiusArr: number[] = [];
   // 각각의 벡터, 타겟 벡터, ball to Target 벡터, 속도, 가속도 을 배열로 만들어 각 공의 특성들을 따로 관리
   const posVectors: THREE.Vector3[] = [];
   const targetVectors: THREE.Vector3[] = [];
@@ -36,22 +38,31 @@ export default function MovingSpheres({ isDebug = true }) {
   const acceleration = 0.0001;
 
   for (let i = 0; i < ballCount; i++) {
-    // ball vector
+    // random radius
+    const randomRadius = THREE.MathUtils.randFloat(0.1, 0.8);
     // random position
-    const ballAX = THREE.MathUtils.randFloat(-posLimitX, posLimitX);
-    const ballAY = THREE.MathUtils.randFloat(-posLimitY, posLimitY);
+    const ballAX = THREE.MathUtils.randFloat(
+      -posLimitX + randomRadius,
+      posLimitX - randomRadius
+    );
+    const ballAY = THREE.MathUtils.randFloat(
+      -posLimitY + randomRadius,
+      posLimitY - randomRadius
+    );
     const posVector = new THREE.Vector3(ballAX, ballAY, 0);
 
     // 현재 만들어진 포지션과 기존의 포지션의 거리를 검사하여 겹치치 않게 생성
     let isOverlay = false;
-    posVectors.forEach((vec) => {
+    posVectors.forEach((vec: THREE.Vector3, vecIdx: number) => {
       const dis = posVector.distanceTo(vec);
-      if (dis < ballRadius * 2) {
+      const prevRadius = ballRadiusArr[vecIdx];
+      if (dis < prevRadius + randomRadius) {
         isOverlay = true;
       }
     });
     if (isOverlay) continue;
 
+    ballRadiusArr.push(randomRadius);
     posVectors.push(posVector); // for each loop, add the produced vector to array
 
     // target vector
@@ -86,8 +97,12 @@ export default function MovingSpheres({ isDebug = true }) {
   const bottomBox = center.y - size.y * 0.5;
   const topBox = center.y + size.y * 0.5;
 
-  function checkEdge(pos: THREE.Vector3, dirVec: THREE.Vector3) {
+  function checkEdge(pos: THREE.Vector3, dirVec: THREE.Vector, idx: number) {
     // 가끔 속도가 빨라서 ball 의 포지션이 boundary 를 넘어설때가 있는데 위치를 재조정해주는 코드
+
+    // 이제 ballRadius 가 각각 다르니 각 인덱스 마다 다르게 checkEdge 을 해준다
+    const ballRadius = ballRadiusArr[idx];
+
     if (pos.x - ballRadius < leftBox) {
       dirVec.x *= -0.9;
       pos.x = leftBox + ballRadius;
@@ -128,12 +143,14 @@ export default function MovingSpheres({ isDebug = true }) {
   ) {
     const group = groupRef.current;
     if (group && group.children.length) {
+      const crntRadius = ballRadiusArr[crntIdx];
       group.children.forEach(
         (collidedMesh: THREE.Object3D, collidedIdx: number) => {
+          const collidedRadius = ballRadiusArr[collidedIdx];
           // distance between current ball and others
           if (crntIdx !== collidedIdx) {
             const dis = crntMesh.position.distanceTo(collidedMesh.position);
-            if (dis < ballRadius * 2) {
+            if (dis < crntRadius + collidedRadius) {
               // 2개의 볼의 반지름보다 작을 시 튕겨나가게 설정
               const mesh = crntMesh as THREE.Mesh;
               // const mat = mesh.material as THREE.MeshBasicMaterial;
@@ -166,7 +183,7 @@ export default function MovingSpheres({ isDebug = true }) {
 
               // 충돌시 프레임이 겹쳐서 속도가 완전히 느려지는것을 방지
               // prevent the ball's velocity from decreaseing when it collides with other balls
-              const moveDis = ballRadius * 2 - dis; // subtract the overlapping distance between the two balls
+              const moveDis = crntRadius + collidedRadius - dis; // subtract the overlapping distance between the two balls
               const crntNewPos = crntDir.clone().multiplyScalar(moveDis);
               crntPos.add(crntNewPos);
 
@@ -186,6 +203,7 @@ export default function MovingSpheres({ isDebug = true }) {
       group.children.forEach(
         (collidedMesh: THREE.Object3D, collidedIdx: number) => {
           const dis = unprojectedPoint.distanceTo(collidedMesh.position);
+          const ballRadius = ballRadiusArr[collidedIdx];
           if (dis < pointerBallRadius + ballRadius) {
             // unprojectedBallRadius 을 0으로 설정하기 않을 경우 z 값이 너무 크게 나오기 때문에
             // 그리고 여기서는 2D 좌표만 필요하기 때문에 useFrame 에서 z 값을 0 으로 초기화
@@ -235,7 +253,7 @@ export default function MovingSpheres({ isDebug = true }) {
         const pos = mesh.position;
         const target = balltoTargetVectors[idx];
         // pos.add(target);
-        checkEdge(pos, target);
+        checkEdge(pos, target, idx);
         checkCollision(idx, mesh, target);
         checkPointer(unprojectedPoint);
         update(pos, target, idx);
@@ -259,12 +277,13 @@ export default function MovingSpheres({ isDebug = true }) {
               color = "blue";
             }
             // 현재 인덱스의 ball 의 디렉션을 담아줌
+            const radius = ballRadiusArr[idx];
             const dir = balltoTargetVectors[idx];
             const origin = new THREE.Vector3();
             const length = 1;
             return (
               <mesh position={posVector}>
-                <sphereGeometry args={[ballRadius]} />
+                <sphereGeometry args={[radius]} />
                 <meshBasicMaterial color={color} />
                 {isDebug ? (
                   <arrowHelper args={[dir, origin, length, color]} />
@@ -278,7 +297,7 @@ export default function MovingSpheres({ isDebug = true }) {
           <></>
         )}
       </group>
-      <mesh ref={pointerSphereRef} opa>
+      <mesh ref={pointerSphereRef}>
         <sphereGeometry args={[pointerBallRadius]} />
         <meshBasicMaterial color={"black"} opacity={0.5} transparent />
       </mesh>
