@@ -1,13 +1,11 @@
 import "./App.css";
 import { Canvas } from "@react-three/fiber";
-import ThreeElement from "./ThreeElement";
-import BearToHoney from "./BearToHoney";
 import { CameraControls } from "@react-three/drei";
 import * as THREE from "three";
-import MovingSphere from "./MovingSphere";
 import MovingSpheres from "./MovingSpheres";
+import SinCos from "./SinCos";
 
-const isDebug = true;
+const isDebug = false;
 function App() {
   return (
     <>
@@ -18,12 +16,13 @@ function App() {
           position: [0, 0, 100],
         }}
       >
+        <color attach={"background"} args={["black"]} />
         {/* <ThreeElement /> */}
         {/* <BearToHoney /> */}
-        <MovingSpheres />
-        <CameraControls />
-        {isDebug ? ( // debug mode
+        {/* <MovingSpheres />  */}
+        {isDebug ? ( // debug mode 일때만 카메라가 움직을 수 있게 설정
           <>
+            <CameraControls />
             <axesHelper args={[7]} />
             <gridHelper
               rotation={[THREE.MathUtils.degToRad(90), 0, 0]}
@@ -33,6 +32,7 @@ function App() {
         ) : (
           <></>
         )}
+        <SinCos />
       </Canvas>
     </>
   );

@@ -12,11 +12,33 @@ function makeRandomColor() {
   return "rgb(" + r + "," + g + "," + b + ")";
 }
 
+const hSel = THREE.MathUtils.randInt(0, 2);
+// hsl -> hue / saturatio / lightness
+function makeHSLRandomColor() {
+  let h = THREE.MathUtils.randInt(200, 240);
+  switch (hSel) {
+    case 0:
+      h = THREE.MathUtils.randInt(200, 240); // blue
+      break;
+    case 1:
+      h = THREE.MathUtils.randInt(0, 40); // red
+      break;
+    case 2:
+      h = THREE.MathUtils.randInt(60, 100); //green
+      break;
+  }
+  const s = THREE.MathUtils.randInt(60, 100);
+  const l = THREE.MathUtils.randInt(40, 95);
+
+  // return "hsl(" + h + "," + s + "," + l + ")";
+  return `hsl(${h},${s}%,${l}%)`;
+}
+
 let prevUnprojectedPoint = new THREE.Vector3();
 
-export default function MovingSpheres({ isDebug = true }) {
+export default function MovingSpheres({ isDebug = false }) {
   const { viewport, scene, camera, pointer } = useThree();
-  const pointerBallRadius = 2.0;
+  const pointerBallRadius = 1.0;
   // const ballRadius = 0.4;
   const posLimitX = viewport.width * 0.5;
   const posLimitY = viewport.height * 0.5;
@@ -31,10 +53,12 @@ export default function MovingSpheres({ isDebug = true }) {
   const balltoTargetVectors: THREE.Vector3[] = [];
   const velocityArray: number[] = [];
   const accelerationArray: number[] = [];
-  const ballCount = 30;
+  const ballCount = 60;
 
   let velocity = 0.0001;
   const velocityLimit = 0.1;
+  const ballARadiusMinLimit = 0.1;
+  const ballScaleRadius = 0.99;
   const acceleration = 0.0001;
 
   for (let i = 0; i < ballCount; i++) {
@@ -66,8 +90,15 @@ export default function MovingSpheres({ isDebug = true }) {
     posVectors.push(posVector); // for each loop, add the produced vector to array
 
     // target vector
-    const targetX = THREE.MathUtils.randFloat(-posLimitX, posLimitX);
-    const targetY = THREE.MathUtils.randFloat(-posLimitY, posLimitY);
+    // make sure vector doesn't go beyond page boundaries
+    const targetX = THREE.MathUtils.randFloat(
+      -posLimitX + randomRadius,
+      posLimitX - randomRadius
+    );
+    const targetY = THREE.MathUtils.randFloat(
+      -posLimitY + randomRadius,
+      posLimitY - randomRadius
+    );
     const targetVector = new THREE.Vector3(targetX, targetY, 0);
     targetVectors.push(targetVector);
 
@@ -189,6 +220,27 @@ export default function MovingSpheres({ isDebug = true }) {
 
               const colliedNewPos = targetDir.clone().multiplyScalar(moveDis);
               collidedPos.add(colliedNewPos);
+
+              // 마우스와 부딪힐때 sphere 볼 작게 하기
+              if (ballRadiusArr[crntIdx] > ballARadiusMinLimit) {
+                // scale down
+                ballRadiusArr[crntIdx] *= ballScaleRadius;
+                ballRadiusArr[collidedIdx] *= ballScaleRadius;
+                // need to decrease mesh's scale directly
+                mesh.scale.set(
+                  mesh.scale.x * ballScaleRadius,
+                  mesh.scale.y * ballScaleRadius,
+                  mesh.scale.z * ballScaleRadius
+                );
+              }
+
+              if (ballRadiusArr[collidedIdx] > ballARadiusMinLimit) {
+                collidedMesh.scale.set(
+                  collidedMesh.scale.x * ballScaleRadius,
+                  collidedMesh.scale.y * ballScaleRadius,
+                  collidedMesh.scale.z * ballScaleRadius
+                );
+              }
             }
           }
         }
@@ -272,7 +324,7 @@ export default function MovingSpheres({ isDebug = true }) {
       <group ref={groupRef}>
         {posVectors.length ? (
           posVectors.map((posVector: THREE.Vector3, idx: number) => {
-            let color = makeRandomColor();
+            let color = makeHSLRandomColor();
             if (isDebug) {
               color = "blue";
             }
@@ -297,11 +349,17 @@ export default function MovingSpheres({ isDebug = true }) {
           <></>
         )}
       </group>
-      <mesh ref={pointerSphereRef}>
-        <sphereGeometry args={[pointerBallRadius]} />
-        <meshBasicMaterial color={"black"} opacity={0.5} transparent />
-      </mesh>
-      <box3Helper args={[box, "blue"]} />
+      {isDebug ? (
+        <>
+          <mesh ref={pointerSphereRef}>
+            <sphereGeometry args={[pointerBallRadius]} />
+            <meshBasicMaterial color={"black"} opacity={0.0} transparent />
+          </mesh>
+          <box3Helper args={[box, "blue"]} />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
