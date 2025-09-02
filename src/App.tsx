@@ -1,9 +1,9 @@
-import "./App.css";
+import "./css/App.css";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import * as THREE from "three";
-import MovingSpheres from "./MovingSpheres";
-import SinCos from "./SinCos";
+import MovingSpheres from "./components/MovingSpheres";
+import SinCos from "./components/SinCos";
 
 const isDebug = false;
 function App() {
@@ -19,7 +19,7 @@ function App() {
         <color attach={"background"} args={["black"]} />
         {/* <ThreeElement /> */}
         {/* <BearToHoney /> */}
-        {/* <MovingSpheres />  */}
+        <MovingSpheres />
         {isDebug ? ( // debug mode 일때만 카메라가 움직을 수 있게 설정
           <>
             <CameraControls />
@@ -32,7 +32,7 @@ function App() {
         ) : (
           <></>
         )}
-        <SinCos />
+        {/* <SinCos /> */}
       </Canvas>
     </>
   );
