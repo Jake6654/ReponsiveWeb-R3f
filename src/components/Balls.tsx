@@ -2,44 +2,19 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
 import { IBallProps } from "../common/interface";
+import {
+  pointerBallRadius,
+  velocity,
+  ballCount,
+  ballARadiusMinLimit,
+  ballScaleRadius,
+  boxCenter,
+} from "../common/constants";
 import Ball from "./Ball";
-
-//랜덤 색상
-function makeRandomColor() {
-  const r = THREE.MathUtils.randInt(0, 255);
-  const g = THREE.MathUtils.randInt(0, 255);
-  const b = THREE.MathUtils.randInt(0, 255);
-
-  return "rgb(" + r + "," + g + "," + b + ")";
-}
-
-const hSel = THREE.MathUtils.randInt(0, 2);
-// hsl -> hue / saturatio / lightness
-function makeHSLRandomColor() {
-  let h = THREE.MathUtils.randInt(200, 240);
-  switch (hSel) {
-    case 0:
-      h = THREE.MathUtils.randInt(200, 240); // blue
-      break;
-    case 1:
-      h = THREE.MathUtils.randInt(0, 40); // red
-      break;
-    case 2:
-      h = THREE.MathUtils.randInt(60, 100); //green
-      break;
-  }
-  const s = THREE.MathUtils.randInt(60, 100);
-  const l = THREE.MathUtils.randInt(40, 95);
-
-  // return "hsl(" + h + "," + s + "," + l + ")";
-  return `hsl(${h},${s}%,${l}%)`;
-}
-
-let prevUnprojectedPoint = new THREE.Vector3();
+import { makeHSLRandomColor } from "../common/utils";
 
 export default function Balls({ isDebug = false }) {
   const { viewport, scene, camera, pointer } = useThree();
-  const pointerBallRadius = 1.0;
   // const ballRadius = 0.4;
   const posLimitX = viewport.width * 0.5;
   const posLimitY = viewport.height * 0.5;
@@ -54,13 +29,13 @@ export default function Balls({ isDebug = false }) {
   const balltoTargetVectors: THREE.Vector3[] = [];
   const velocityArray: number[] = [];
   const accelerationArray: number[] = [];
-  const ballCount = 60;
 
-  let velocity = 0.0001;
-  const velocityLimit = 0.1;
-  const ballARadiusMinLimit = 0.1;
-  const ballScaleRadius = 0.99;
-  const acceleration = 0.0001;
+  // convert pointer(2d position) to unprojectedPointer(3d position)
+  const unprojectedPoint = new THREE.Vector3(0, 0, 0);
+  const box = new THREE.Box3();
+  const boxSize = new THREE.Vector3(viewport.width, viewport.height, 0);
+  // 가운데에서 가로, 세로 10 사이즈의 박스 생성
+  box.setFromCenterAndSize(boxCenter, boxSize);
 
   for (let i = 0; i < ballCount; i++) {
     // random radius
@@ -115,56 +90,6 @@ export default function Balls({ isDebug = false }) {
     // 랜덤 가속도도 10개 생성
     const acceleration = THREE.MathUtils.randFloat(0.0001, 0.001);
     accelerationArray.push(acceleration);
-  }
-
-  const box = new THREE.Box3();
-  const center = new THREE.Vector3();
-  const size = new THREE.Vector3(viewport.width, viewport.height, 0);
-  // 가운데에서 가로, 세로 10 사이즈의 박스 생성
-  box.setFromCenterAndSize(center, size);
-
-  // 박스의 상하좌우 경게값을 만들어 부딪히면 튕기게 설정
-  const leftBox = center.x - size.x * 0.5;
-  const rightBox = center.x + size.x * 0.5;
-  const bottomBox = center.y - size.y * 0.5;
-  const topBox = center.y + size.y * 0.5;
-
-  function checkEdge(pos: THREE.Vector3, dirVec: THREE.Vector, idx: number) {
-    // 가끔 속도가 빨라서 ball 의 포지션이 boundary 를 넘어설때가 있는데 위치를 재조정해주는 코드
-
-    // 이제 ballRadius 가 각각 다르니 각 인덱스 마다 다르게 checkEdge 을 해준다
-    const ballRadius = ballRadiusArr[idx];
-
-    if (pos.x - ballRadius < leftBox) {
-      dirVec.x *= -0.9;
-      pos.x = leftBox + ballRadius;
-    }
-
-    if (pos.x + ballRadius > rightBox) {
-      dirVec.x *= -0.9;
-      pos.x = rightBox - ballRadius;
-    }
-
-    if (pos.y + ballRadius > topBox) {
-      dirVec.y *= -0.9;
-      pos.y = topBox - ballRadius;
-    }
-
-    if (pos.y - ballRadius < bottomBox) {
-      dirVec.y *= -0.9;
-      pos.y = bottomBox + ballRadius;
-    }
-  }
-
-  function update(pos: THREE.Vector3, target: THREE.Vector3, idx: number) {
-    velocityArray[idx] += accelerationArray[idx];
-    if (velocityArray[idx] >= velocityLimit) {
-      velocityArray[idx] = velocityLimit;
-    }
-    console.log("velocity: ", velocity);
-
-    const addPos = target.clone().multiplyScalar(velocityArray[idx]);
-    pos.add(addPos);
   }
 
   // 볼이 서로 부딪히면 튕겨져 나가는 함수 구현
@@ -249,48 +174,12 @@ export default function Balls({ isDebug = false }) {
     }
   }
 
-  function checkPointer(unprojectedPoint: THREE.Vector3) {
-    const group = groupRef.current;
-    if (group && group.children.length) {
-      const mouseDistance = prevUnprojectedPoint.distanceTo(unprojectedPoint);
-      group.children.forEach(
-        (collidedMesh: THREE.Object3D, collidedIdx: number) => {
-          const dis = unprojectedPoint.distanceTo(collidedMesh.position);
-          const ballRadius = ballRadiusArr[collidedIdx];
-          if (dis < pointerBallRadius + ballRadius) {
-            // unprojectedBallRadius 을 0으로 설정하기 않을 경우 z 값이 너무 크게 나오기 때문에
-            // 그리고 여기서는 2D 좌표만 필요하기 때문에 useFrame 에서 z 값을 0 으로 초기화
-            const crntPos = unprojectedPoint;
-            const collidedPos = collidedMesh.position;
-            // 현재 벡터에서 부딪히는 벡터를 빼야함 새로운 벡터를 가져오기
-            const newDirVec = crntPos.clone().sub(collidedPos).normalize();
-
-            // target direction 을 바꿔줄 필요가 있다
-            const targetDir = balltoTargetVectors[collidedIdx];
-
-            // 새로운 벡터 반대 방향
-            targetDir.x = -newDirVec.x;
-            targetDir.y = -newDirVec.y;
-
-            velocityArray[collidedIdx] *= 2.5 + mouseDistance;
-
-            const moveDis = ballRadius + pointerBallRadius - dis; // subtract the overlapping distance between the two balls
-            const colliedNewPos = targetDir.clone().multiplyScalar(moveDis);
-            collidedPos.add(colliedNewPos);
-          }
-        }
-      );
-      prevUnprojectedPoint = unprojectedPoint;
-    }
-  }
-
   useFrame(() => {
     // 이제는 단일 ball(mesh) 가 아닌 group 을 사용
     const group = groupRef.current;
     if (group && group.children.length) {
-      // convert pointer(2d position) to unprojectedPointer(3d position)
-      const point = pointer;
-      const unprojectedPoint = new THREE.Vector3(point.x, point.y, 0);
+      unprojectedPoint.x = pointer.x;
+      unprojectedPoint.y = pointer.y;
       unprojectedPoint.unproject(camera); // 하면 이제 최종적으로 3d 좌표료 변경됨
       unprojectedPoint.z = 0;
 
@@ -301,22 +190,6 @@ export default function Balls({ isDebug = false }) {
           unprojectedPoint.z
         );
       }
-      // 배열의 각 원소를 순회하면서 콜백 함수를 실행한다
-      group.children.forEach((mesh: THREE.Object3D, idx: number) => {
-        const pos = mesh.position;
-        const target = balltoTargetVectors[idx];
-        // pos.add(target);
-        checkEdge(pos, target, idx);
-        checkCollision(idx, mesh, target);
-        checkPointer(unprojectedPoint);
-        update(pos, target, idx);
-
-        // 이런식으로 부딪힐때 방향이 바뀌므로 arrowHelper 의 dir 또한 바뀌게 설정
-        if (mesh.children.length) {
-          const arrowHelper = mesh.children[0] as THREE.ArrowHelper;
-          arrowHelper.setDirection(target);
-        }
-      });
     }
   });
 
@@ -329,27 +202,42 @@ export default function Balls({ isDebug = false }) {
             if (isDebug) {
               color = "blue";
             }
-            // 현재 인덱스의 ball 의 디렉션을 담아줌
-            const radius = ballRadiusArr[idx];
+            // 현재 인덱스의 ball 의 디렉션을 담아줌 이것들을 props 로 모두 넘겨준다
+            const ballRadius = ballRadiusArr[idx];
             const dir = balltoTargetVectors[idx];
-            const origin = new THREE.Vector3();
-            const length = 1;
+
+            // target 은 ball 의 움직이는 방향
+            const target = balltoTargetVectors[idx];
+
+            const vel = velocityArray[idx];
+            const acc = accelerationArray[idx];
+
             const props: IBallProps = {
               evnOps: {
                 isDebug: isDebug,
+                unprojectedPoint,
+                boxSize,
               },
 
               ballOp: {
                 posVector,
-                radius,
+                ballRadius,
                 color,
                 dir,
                 ballIdx: idx,
+                target,
+                vel,
+                acc,
               },
+              checkCollision,
             };
             return (
               <>
-                <Ball evnOps={props.evnOps} ballOp={props.ballOp} />
+                <Ball
+                  evnOps={props.evnOps}
+                  ballOp={props.ballOp}
+                  checkCollision={checkCollision}
+                />
               </>
             );
           })

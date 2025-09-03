@@ -3,14 +3,17 @@ export interface IBallProps {
 
   evnOps: {
     isDebug: boolean;
+    unprojectedPoint: THREE.Vector3;
   };
 
   ballOp: {
     posVector: THREE.Vector3;
-    radius: number;
+    ballRadius: number;
     color: string;
     dir: THREE.Vector3;
-
     ballIdx: number;
+    target: THREE.Vector3;
+    vel: number;
+    acc: number;
   };
 }
