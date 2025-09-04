@@ -1,0 +1,33 @@
+.dom-wrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  color: red;
+  font-size: 30px;
+  width: 100%;
+  height: 100%;
+}
+
+.section-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+}
+
+.section-wrapper > div {
+  width: 100%;
+  height: 100%;
+}
+
+.section-01 {
+  background-color: red;
+  opacity: 0.3;
+}
+.section-02 {
+  background-color: blue;
+  opacity: 0.3;
+}
+.section-03 {
+  background-color: green;
+  opacity: 0.3;
+}
