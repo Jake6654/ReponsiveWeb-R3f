@@ -3,41 +3,93 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/src/all";
 import { useLayoutEffect } from "react";
+import { useRecoilState } from "recoil";
+import { StepState } from "../common/interface";
+import { atomCrntStep } from "../atoms/atoms";
+import { stepToString } from "../common/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(TextPlugin);
 
 export default function Dom() {
+  const [crntStep, setCrntStep] = useRecoilState<StepState>(atomCrntStep);
+
+  console.log("crntStep: ", stepToString(crntStep));
+
   useLayoutEffect(() => {
+    gsap.timeline({
+      scrollTrigger: {
+        scroller: ".section-wrapper",
+        trigger: ".section-01",
+        start: "0% 0%",
+        end: "100% 20%",
+        onEnter: () => {
+          console.log("section-01 onEnter");
+          if (crntStep !== StepState.STEP_1) {
+            setCrntStep(StepState.STEP_1);
+          }
+        },
+        onEnterBack: () => {
+          console.log("section-01 onEnterBack");
+          if (crntStep !== StepState.STEP_1_AND_2) {
+            setCrntStep(StepState.STEP_1_AND_2);
+          }
+        },
+        onLeave: () => {
+          console.log("section-01 onLeave");
+          if (crntStep !== StepState.STEP_1_AND_2) {
+            setCrntStep(StepState.STEP_1_AND_2);
+          }
+        },
+        onLeaveBack: () => {
+          console.log("section-01 onLeaveBack");
+          if (crntStep !== StepState.STEP_1) {
+            setCrntStep(StepState.STEP_1);
+          }
+        },
+      },
+    });
+
     gsap.timeline({
       // yes, we can add it to an entire timeline!
       scrollTrigger: {
         scroller: ".section-wrapper",
         trigger: ".section-02",
-        start: "10% bottom",
-        end: "bottom top",
+        start: "0% 0%",
+        end: "100% 0%",
         onEnter: () => {
           console.log("section-02 onEnter");
+          if (crntStep !== StepState.STEP_2) {
+            setCrntStep(StepState.STEP_2);
+          }
         },
-
-        // pin: true, // pin the trigger element while active
-        // start: "top top", // when the top of the trigger hits the top of the viewport
-        // end: "+=500", // end after scrolling 500px beyond the start
-        // scrub: 1, // smooth scrubbing, takes 1 second to "catch up" to the scrollbar
-        // snap: {
-        //   snapTo: "labels", // snap to the closest label in the timeline
-        //   duration: { min: 0.2, max: 3 }, // the snap animation should be at least 0.2 seconds, but no more than 3 seconds (determined by velocity)
-        //   delay: 0.2, // wait 0.2 seconds from the last scroll event before doing the snapping
-        //   ease: "power1.inOut", // the ease of the snap animation ("power3" by default)
+        onEnterBack: () => {
+          console.log("section-02 onEnterBack");
+          if (crntStep !== StepState.STEP_2) {
+            setCrntStep(StepState.STEP_2);
+          }
+        },
+        onLeave: () => {
+          console.log("section-02 onLeave");
+          if (crntStep !== StepState.STEP_3) {
+            setCrntStep(StepState.STEP_3);
+          }
+        },
+        onLeaveBack: () => {
+          console.log("section-02 onLeaveBack");
+          if (crntStep !== StepState.STEP_1_AND_2) {
+            setCrntStep(StepState.STEP_1_AND_2);
+          }
+        },
       },
     });
-  });
+  }, []);
 
   return (
     <>
       <div className="dom-wrapper">
+        <div className="step-display">{stepToString(crntStep)}</div>
         <div className="section-wrapper">
-          asdasdsadsa
           <div className="section-01"></div>
           <div className="section-02"></div>
           <div className="section-03"></div>

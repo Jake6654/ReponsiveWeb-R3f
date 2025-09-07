@@ -6,9 +6,14 @@ import MovingSpheres from "./components/three/Balls";
 import SinCos from "./components/three/SinCos";
 import Balls from "./components/three/Balls";
 import Dom from "./components/Dom";
+import { useRecoilState } from "recoil";
+import { StepState } from "./common/interface";
+import { atomCrntStep } from "./atoms/atoms";
 
 const isDebug = false;
 function App() {
+  const [crntStep, setCrntStep] = useRecoilState<StepState>(atomCrntStep);
+
   return (
     <>
       <Canvas
@@ -19,7 +24,12 @@ function App() {
         }}
       >
         <color attach={"background"} args={["black"]} />
-        <Balls isDebug={isDebug} />
+        {crntStep <= StepState.STEP_1_AND_2 ? <SinCos /> : <></>}
+        {crntStep >= StepState.STEP_1_AND_2 ? (
+          <Balls isDebug={isDebug} />
+        ) : (
+          <></>
+        )}
         <CameraControls />
         {isDebug ? ( // debug mode 일때만 카메라가 움직을 수 있게 설정
           <>
@@ -32,7 +42,6 @@ function App() {
         ) : (
           <></>
         )}
-        <SinCos />
       </Canvas>
       <Dom />
     </>

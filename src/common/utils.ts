@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { StepState } from "./interface";
 
 const hSel = THREE.MathUtils.randInt(0, 2);
 
@@ -20,4 +21,29 @@ export function makeHSLRandomColor() {
 
   // return "hsl(" + h + "," + s + "," + l + ")";
   return `hsl(${h},${s}%,${l}%)`;
+}
+
+export function stepToString(step: StepState) {
+  let res = "";
+  switch (step) {
+    case StepState.NONE:
+      res = "NONE";
+      break;
+    case StepState.STEP_1:
+      res = "STEP_1";
+      break;
+    case StepState.STEP_1_AND_2:
+      res = "STEP_1_AND_2";
+      break;
+    case StepState.STEP_2:
+      res = "STEP_2";
+      break;
+    case StepState.STEP_3:
+      res = "STEP_3";
+      break;
+    default:
+      res = "NONE";
+      break;
+  }
+  return res;
 }
