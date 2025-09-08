@@ -12,3 +12,4 @@ export const ballCount = 60;
 export let velocity = 0.0001;
 export const ballARadiusMinLimit = 0.1;
 export const ballScaleRadius = 0.99;
+export const zoomLimit = 45;

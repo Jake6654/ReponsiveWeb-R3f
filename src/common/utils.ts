@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { StepState } from "./interface";
+import { ballCount, velocity } from "./constants";
 
 const hSel = THREE.MathUtils.randInt(0, 2);
 
@@ -46,4 +47,80 @@ export function stepToString(step: StepState) {
       break;
   }
   return res;
+}
+
+export function initBallOptions(viewport: any) {
+  const posLimitX = viewport.width * 0.5;
+  const posLimitY = viewport.height * 0.5;
+
+  const ballRadiusArrIn: number[] = [];
+  const posVectorsIn: THREE.Vector3[] = [];
+  const targetVectorsIn: THREE.Vector3[] = [];
+  const balltoTargetVectorsIn: THREE.Vector3[] = [];
+  const velocityArrayIn: number[] = [];
+  const accelerationArrayIn: number[] = [];
+
+  for (let i = 0; i < ballCount; i++) {
+    // random radius
+    const randomRadius = THREE.MathUtils.randFloat(0.1, 0.8);
+    // random position
+    const ballAX = THREE.MathUtils.randFloat(
+      -posLimitX + randomRadius,
+      posLimitX - randomRadius
+    );
+    const ballAY = THREE.MathUtils.randFloat(
+      -posLimitY + randomRadius,
+      posLimitY - randomRadius
+    );
+    const posVector = new THREE.Vector3(ballAX, ballAY, 0);
+
+    // 현재 만들어진 포지션과 기존의 포지션의 거리를 검사하여 겹치치 않게 생성
+    let isOverlay = false;
+    posVectorsIn.forEach((vec: THREE.Vector3, vecIdx: number) => {
+      const dis = posVector.distanceTo(vec);
+      const prevRadius = ballRadiusArrIn[vecIdx];
+      if (dis < prevRadius + randomRadius) {
+        isOverlay = true;
+      }
+    });
+    if (isOverlay) continue;
+
+    ballRadiusArrIn.push(randomRadius);
+    posVectorsIn.push(posVector); // for each loop, add the produced vector to array
+
+    // target vector
+    // make sure vector doesn't go beyond page boundaries
+    const targetX = THREE.MathUtils.randFloat(
+      -posLimitX + randomRadius,
+      posLimitX - randomRadius
+    );
+    const targetY = THREE.MathUtils.randFloat(
+      -posLimitY + randomRadius,
+      posLimitY - randomRadius
+    );
+    const targetVector = new THREE.Vector3(targetX, targetY, 0);
+    targetVectorsIn.push(targetVector);
+
+    // ball to target 으로 가는 vector
+    const ballToTargetVector = new THREE.Vector3();
+    ballToTargetVector.subVectors(targetVector, posVector);
+    ballToTargetVector.normalize();
+
+    balltoTargetVectorsIn.push(ballToTargetVector);
+    // 속도도 10개 생성
+    velocityArrayIn.push(velocity);
+
+    // 랜덤 가속도도 10개 생성
+    const acceleration = THREE.MathUtils.randFloat(0.0001, 0.001);
+    accelerationArrayIn.push(acceleration);
+  }
+
+  return {
+    ballRadiusArrIn,
+    posVectorsIn,
+    targetVectorsIn,
+    balltoTargetVectorsIn,
+    velocityArrayIn,
+    accelerationArrayIn,
+  };
 }

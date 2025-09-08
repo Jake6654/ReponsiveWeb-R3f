@@ -2,7 +2,7 @@ import "../css/dom.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/src/all";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
 import { StepState } from "../common/interface";
 import { atomCrntStep } from "../atoms/atoms";
@@ -11,10 +11,19 @@ import { stepToString } from "../common/utils";
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(TextPlugin);
 
-export default function Dom() {
+export default function Dom(props: any) {
   const [crntStep, setCrntStep] = useRecoilState<StepState>(atomCrntStep);
+  const scrollY = props.scrollYDelta;
+  const sectionWrapRef = useRef<HTMLElement>();
 
-  console.log("crntStep: ", stepToString(crntStep));
+  console.log("scrollY : ", scrollY);
+  //console.log("crntStep: ", stepToString(crntStep));
+
+  useEffect(() => {
+    if (sectionWrapRef.current) {
+      sectionWrapRef.current.scrollTop += scrollY;
+    }
+  }, [scrollY]); // whenever scrollF changes, run useEffect
 
   useLayoutEffect(() => {
     gsap.timeline({
@@ -89,7 +98,7 @@ export default function Dom() {
     <>
       <div className="dom-wrapper">
         <div className="step-display">{stepToString(crntStep)}</div>
-        <div className="section-wrapper">
+        <div className="section-wrapper" ref={sectionWrapRef}>
           <div className="section-01"></div>
           <div className="section-02"></div>
           <div className="section-03"></div>
