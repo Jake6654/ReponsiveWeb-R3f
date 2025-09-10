@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
 import { StepState } from "../common/interface";
 import { atomCrntStep } from "../atoms/atoms";
-import { stepToString } from "../common/utils";
+import { setScrollTop, stepToString } from "../common/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(TextPlugin);
@@ -22,6 +22,7 @@ export default function Dom(props: any) {
   useEffect(() => {
     if (sectionWrapRef.current) {
       sectionWrapRef.current.scrollTop += scrollY;
+      setScrollTop(sectionWrapRef.current.scrollTop);
     }
   }, [scrollY]); // whenever scrollF changes, run useEffect
 

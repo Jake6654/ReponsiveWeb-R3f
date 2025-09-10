@@ -37,8 +37,26 @@ function App() {
   }
 
   useEffect(() => {
-    console.log("camConRef.current : ", camConRef.current);
     limitCamCon();
+    if (camConRef.current) {
+      // console.log(
+      //   " camConRef.current.azimuthAngle: ",
+      //   camConRef.current.azimuthAngle
+      // );
+      // console.log(
+      //   " camConRef.current.polarAngle: ",
+      //   camConRef.current.polarAngle
+      // );
+      if (crntStep >= StepState.STEP_1_AND_2) {
+        // rotateTo( azimuthAngle, polarAngle, enableTransition )
+        const initPolarAngle = THREE.MathUtils.degToRad(90);
+        camConRef.current.rotateTo(0, initPolarAngle, true);
+        if (crntStep >= StepState.STEP_2) {
+          // 카메라를 조정하여 스텝 2이상일땐 카메라가 원점으로 돌아오게끔 설정
+          camConRef.current.rotateTo(0, initPolarAngle, false);
+        }
+      }
+    }
   }, [crntStep]); // crntStep 이 바뀔때마다 실행
 
   return (

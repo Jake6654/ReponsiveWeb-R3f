@@ -124,3 +124,13 @@ export function initBallOptions(viewport: any) {
     accelerationArrayIn,
   };
 }
+
+// Manage scrollY in Dom.tsx
+let scrollTop = 0;
+export function setScrollTop(scrollY: number) {
+  scrollTop = scrollY;
+}
+
+export function getScrollTop() {
+  return scrollTop;
+}

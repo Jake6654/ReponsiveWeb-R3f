@@ -206,7 +206,7 @@ function Balls({ isDebug = false }) {
         <>
           <mesh ref={pointerSphereRef}>
             <sphereGeometry args={[pointerBallRadius]} />
-            <meshBasicMaterial color={"black"} opacity={0.0} transparent />
+            <meshBasicMaterial color={"black"} opacity={0.5} transparent />
           </mesh>
           <box3Helper args={[box, "blue"]} />
         </>

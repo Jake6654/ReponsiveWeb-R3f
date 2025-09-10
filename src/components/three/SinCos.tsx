@@ -1,22 +1,37 @@
 import * as THREE from "three";
 import { Text, Billboard } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
+import { getScrollTop } from "../../common/utils";
+import {
+  curveCount,
+  minFontSize,
+  maxFontSize,
+  xCount,
+  amplitude,
+  xDivision,
+  curveGroupX,
+  startCurveScale,
+  endCurveScale,
+} from "../../common/constants";
 
 export default function SinCos() {
+  const { size } = useThree();
+  const crntScrollTop = getScrollTop();
   const curveGroupRef = useRef<THREE.Group>();
   const points: THREE.Vector3[] = [];
   const pointsGroup: THREE.Vector3[][] = [];
-  const count = 360;
-  const amplitude = 5;
-  const xDivision = 15;
-  const curveGroupX = (count / xDivision) * 0.5;
   const textStr = "The Campers Ministry";
-  const curveCount = 3;
-  const minFontSize = 0.2;
-  const maxFontSize = 2.5;
 
-  for (let i = 0; i < count; i++) {
+  const curveGroupScale = THREE.MathUtils.mapLinear(
+    crntScrollTop,
+    0,
+    size.height,
+    startCurveScale,
+    endCurveScale
+  );
+
+  for (let i = 0; i < xCount; i++) {
     const x = i / xDivision;
     const sin = Math.sin(THREE.MathUtils.degToRad(i)) * amplitude;
     const cos = Math.cos(THREE.MathUtils.degToRad(i)) * amplitude;
@@ -62,7 +77,11 @@ export default function SinCos() {
 
   return (
     <>
-      <group ref={curveGroupRef} position={[-curveGroupX, 0, 0]}>
+      <group
+        ref={curveGroupRef}
+        position={[0, 0, 0]}
+        scale={[curveGroupScale, curveGroupScale, curveGroupScale]}
+      >
         {pointsGroup.length ? (
           pointsGroup.map((cPoints: THREE.Vector3[], cpIndex: number) => {
             const deg = (cpIndex * 360) / curveCount;
@@ -71,10 +90,18 @@ export default function SinCos() {
             return cPoints.length ? (
               <group
                 rotation={[rad, 0, 0]}
+                position={[-curveGroupX, 0, 0]}
                 //position={[cpIndex * 10, 0, 0]}
               >
                 {cPoints.map((point: THREE.Vector3, PIndex: number) => {
                   const text = textStr[PIndex];
+                  const textOpacity = THREE.MathUtils.mapLinear(
+                    crntScrollTop,
+                    0,
+                    size.height,
+                    1,
+                    0
+                  );
                   return (
                     // by wrapping it with a billboard, the text is made to follow camera's movemen
 
@@ -82,7 +109,12 @@ export default function SinCos() {
                       key={"text_" + PIndex}
                       position={[point.x, point.y, point.z]}
                     >
-                      <Text fontSize={0.5} color={"white"} fontWeight={"bold"}>
+                      <Text
+                        fontSize={0.5}
+                        color={"black"}
+                        fontWeight={"bold"}
+                        fillOpacity={textOpacity}
+                      >
                         {text}
                       </Text>
                     </Billboard>

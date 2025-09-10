@@ -6,17 +6,33 @@ import {
   velocityLimit,
   pointerBallRadius,
   boxCenter,
+  startBallOpacity,
+  endBallOpacity,
+  endBallPosition,
+  startBallPosition,
 } from "../../common/constants";
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useRecoilState } from "recoil";
 import { atomCrntStep } from "../../atoms/atoms";
+import { getScrollTop } from "../../common/utils";
 
 export default function Ball(props: IBallProps) {
   // Dom 으로 인해 state 을 관리하기 때문에 따로 set 함수는 필요하지 않음
   const [crntStep] = useRecoilState<StepState>(atomCrntStep);
   // crntStep 이 StepState.STEP_3 과 완전히 같을 때만  isGravity 가 true 가 됨
   const isGravity = crntStep === StepState.STEP_3;
+  const { size } = useThree();
+  const crntScrollTop = getScrollTop();
+
+  let ballOpacity = 0;
+  if (crntStep >= StepState.STEP_2) {
+    ballOpacity = startBallOpacity;
+
+    if (crntScrollTop > size.height * endBallPosition) {
+      ballOpacity = endBallOpacity;
+    }
+  }
 
   const { isDebug, unprojectedPoint, boxSize } = props.evnOps;
   const { posVector, ballRadius, color, dir, ballIdx } = props.ballOp;
@@ -137,7 +153,7 @@ export default function Ball(props: IBallProps) {
     <>
       <mesh ref={ballRef} position={posVector} key={"mesh_" + ballIdx}>
         <sphereGeometry args={[ballRadius]} />
-        <meshBasicMaterial color={color} />
+        <meshBasicMaterial color={color} opacity={ballOpacity} transparent />
         {isDebug ? (
           // arrowHelper is a utility calss designed to visualize a direction vector in a 3d scene by rendering a visible arrow
           <arrowHelper args={[dir, arrowOrigin, arrowLength, color]} />

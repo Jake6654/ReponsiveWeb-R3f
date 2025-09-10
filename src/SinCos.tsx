@@ -1,10 +1,13 @@
 import * as THREE from "three";
 import { Text, Billboard } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import { max } from "three/examples/jsm/nodes/Nodes.js";
+import { getScrollTop } from "./common/utils";
 
 export default function SinCos() {
+  const { size } = useThree();
+  const crntScrollTop = getScrollTop();
   const curveGroupRef = useRef<THREE.Group>();
   const points: THREE.Vector3[] = [];
   const pointsGroup: THREE.Vector3[][] = [];
@@ -38,6 +41,14 @@ export default function SinCos() {
 
   useFrame(() => {
     if (curveGroupRef.current) {
+      const scale = THREE.MathUtils.mapLinear(
+        crntScrollTop,
+        0,
+        size.height,
+        1,
+        5
+      );
+      curveGroupRef.current.scale.set(scale, scale, scale);
       curveGroupRef.current.children.forEach((curve) => {
         curve.rotation.x += 0.01;
 
@@ -80,7 +91,7 @@ export default function SinCos() {
                     // by wrapping it with a billboard, the text is made to follow camera's movemen
 
                     <Billboard position={[point.x, point.y, point.z]}>
-                      <Text fontSize={0.5} color={"white"} fontWeight={"bold"}>
+                      <Text fontSize={0.5} color={"black"} fontWeight={"bold"}>
                         {text}
                       </Text>
                     </Billboard>
