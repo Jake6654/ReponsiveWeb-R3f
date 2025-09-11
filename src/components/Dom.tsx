@@ -13,12 +13,13 @@ gsap.registerPlugin(TextPlugin);
 
 export default function Dom(props: any) {
   const [crntStep, setCrntStep] = useRecoilState<StepState>(atomCrntStep);
-  const scrollY = props.scrollYDelta;
+  const scrollY = props.scrollYDelta; // Y scroll down variable
   const sectionWrapRef = useRef<HTMLElement>();
 
   console.log("scrollY : ", scrollY);
-  //console.log("crntStep: ", stepToString(crntStep));
+  
 
+  // By using useEffect, whenever scrollY changes, call setScrollTop to update scrollY's value
   useEffect(() => {
     if (sectionWrapRef.current) {
       sectionWrapRef.current.scrollTop += scrollY;

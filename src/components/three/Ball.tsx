@@ -22,13 +22,17 @@ export default function Ball(props: IBallProps) {
   const [crntStep] = useRecoilState<StepState>(atomCrntStep);
   // crntStep 이 StepState.STEP_3 과 완전히 같을 때만  isGravity 가 true 가 됨
   const isGravity = crntStep === StepState.STEP_3;
-  const { size } = useThree();
+  const { size, viewport } = useThree();
   const crntScrollTop = getScrollTop();
 
-  let ballOpacity = 0;
-  if (crntStep >= StepState.STEP_2) {
-    ballOpacity = startBallOpacity;
+  // 윈도우 size 와 three.js viewport 의 비율을 구하는 공식
+  // size.height :viewport.height = 68.5 : X;
+  // size.height * x = viewport.height * 68.5;
+  const appBarHeight = (viewport.height * 68.5) / size.height;
 
+  let ballOpacity = 0;
+  if (crntScrollTop >= size.height * startBallPosition) {
+    ballOpacity = startBallOpacity;
     if (crntScrollTop > size.height * endBallPosition) {
       ballOpacity = endBallOpacity;
     }
@@ -56,7 +60,8 @@ export default function Ball(props: IBallProps) {
   const leftBox = boxCenter.x - boxSize.x * 0.5;
   const rightBox = boxCenter.x + boxSize.x * 0.5;
   const bottomBox = boxCenter.y - boxSize.y * 0.5;
-  const topBox = boxCenter.y + boxSize.y * 0.5;
+  // 상단 bar 가 차지하는 px 이 68.5 px 그래서 바의 아랫부분에 부딪히면 튕겨지게끔 하고 싶음, 윈도우의 기준과 three.js 기준이 다름
+  const topBox = boxCenter.y + boxSize.y * 0.5 - appBarHeight;
 
   // 가끔 속도가 빨라서 ball 의 포지션이 boundary 를 넘어설때가 있는데 위치를 재조정해주는 코드
   function checkEdge(pos: THREE.Vector3) {
