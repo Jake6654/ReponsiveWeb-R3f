@@ -5,27 +5,25 @@ import { TextPlugin } from "gsap/src/all";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
 import { StepState } from "../common/interface";
-import { atomCrntStep } from "../atoms/atoms";
+import { atomCrntStep, atomCrntScrollY } from "../atoms/atoms";
 import { setScrollTop, stepToString } from "../common/utils";
+import { Box, Typography } from "@mui/material";
 
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(TextPlugin);
 
 export default function Dom(props: any) {
+  const sectionWrapRef = useRef<HTMLDivElement>(null);
   const [crntStep, setCrntStep] = useRecoilState<StepState>(atomCrntStep);
-  const scrollY = props.scrollYDelta; // Y scroll down variable
-  const sectionWrapRef = useRef<HTMLElement>();
+  const [crnScrollY] = useRecoilState<StepState>(atomCrntScrollY);
+  const isDebug = props.isDebug;
 
-  console.log("scrollY : ", scrollY);
-  
-
-  // By using useEffect, whenever scrollY changes, call setScrollTop to update scrollY's value
   useEffect(() => {
     if (sectionWrapRef.current) {
-      sectionWrapRef.current.scrollTop += scrollY;
+      sectionWrapRef.current.scrollTop = crnScrollY;
       setScrollTop(sectionWrapRef.current.scrollTop);
     }
-  }, [scrollY]); // whenever scrollF changes, run useEffect
+  }, [crnScrollY]);
 
   useLayoutEffect(() => {
     gsap.timeline({
@@ -44,6 +42,7 @@ export default function Dom(props: any) {
           console.log("section-01 onEnterBack");
           if (crntStep !== StepState.STEP_1_AND_2) {
             setCrntStep(StepState.STEP_1_AND_2);
+            gsap.to(".section-box-02", { right: "-100%", duration: 0.5 });
           }
         },
         onLeave: () => {
@@ -67,23 +66,31 @@ export default function Dom(props: any) {
         scroller: ".section-wrapper",
         trigger: ".section-02",
         start: "0% 0%",
-        end: "100% 0%",
+        end: "100% 20%",
         onEnter: () => {
           console.log("section-02 onEnter");
           if (crntStep !== StepState.STEP_2) {
             setCrntStep(StepState.STEP_2);
+            // I used gsap to trigger a specific action at a certain step
+            gsap.to(".section-box-02", { right: "10%", duration: 0.5 });
           }
         },
         onEnterBack: () => {
           console.log("section-02 onEnterBack");
           if (crntStep !== StepState.STEP_2) {
             setCrntStep(StepState.STEP_2);
+            gsap.to(".section-box-02", { right: "10%", duration: 0.5 });
+            gsap.to(".section-box-03", { opacity: 0.0, duration: 1 });
+            gsap.to(".section-box-03", { left: "200%", duration: 0.0 });
           }
         },
         onLeave: () => {
           console.log("section-02 onLeave");
           if (crntStep !== StepState.STEP_3) {
             setCrntStep(StepState.STEP_3);
+            gsap.to(".section-box-02", { right: "100%", duration: 0.5 });
+            gsap.to(".section-box-03", { opacity: 1.0, duration: 1 });
+            gsap.to(".section-box-03", { left: "50%", duration: 0.0 });
           }
         },
         onLeaveBack: () => {
@@ -101,7 +108,14 @@ export default function Dom(props: any) {
       <div className="dom-wrapper">
         <div className="step-display">{stepToString(crntStep)}</div>
         <div className="section-wrapper" ref={sectionWrapRef}>
-          <div className="section-01"></div>
+          <div className="section-01">
+            <Box className="section-box-01">
+              <p className="typography-01">Creative Coding Lab 137.5</p>
+              <p className="typography-02">
+                Exploring the intersection of Art and Technology
+              </p>
+            </Box>
+          </div>
           <div className="section-02"></div>
           <div className="section-03"></div>
         </div>

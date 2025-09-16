@@ -5,3 +5,8 @@ export const atomCrntStep = atom<StepState>({
   key: "step",
   default: 0,
 });
+
+export const atomCrntScrollY = atom<number>({
+  key: "scroll",
+  default: 0,
+});

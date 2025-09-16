@@ -1,0 +1,22 @@
+.dom-contents-wrapper {
+  position: relative;
+  z-index: 5;
+}
+
+.section-box-02 {
+  position: fixed;
+  right: -100%;
+  bottom: 10%;
+  font-size: 30px;
+  width: 55%;
+}
+
+.section-box-03 {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+  width: 55%;
+  opacity: 0;
+}

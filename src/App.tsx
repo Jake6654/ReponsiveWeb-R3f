@@ -2,28 +2,31 @@ import "./css/App.css";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import * as THREE from "three";
-import MovingSpheres from "./components/three/Balls";
 import SinCos from "./components/three/SinCos";
 import Balls from "./components/three/Balls";
 import Dom from "./components/Dom";
 import { useRecoilState } from "recoil";
 import { StepState } from "./common/interface";
-import { atomCrntStep } from "./atoms/atoms";
+import { atomCrntStep, atomCrntScrollY } from "./atoms/atoms";
 import { useEffect, useRef, useState } from "react";
 // drei 로 카메라 컨트롤즈를 가져오게되면 타입을 가져올 수 없기 때문에 직접 따로 임포트를 해줘야함
 import CameraControlsType from "camera-controls";
 import { zoomLimit } from "./common/constants";
 import ResponsiveAppBar from "./components/ResponsiveAppBar";
+import Domcontents from "./components/DomContents";
+import Form from "./components/Form";
 
 const isDebug = false;
 function App() {
+  // Step 과 crntScrollY 값은 전역 상태 단위(atom)으로 설정하여 전역으로 다룰 수 있게 수정
   const [crntStep] = useRecoilState<StepState>(atomCrntStep);
-  const [scrollYDelta, setScrollYDelta] = useState<number>(0);
+  const [crntScrollY, setCrntScrollY] = useRecoilState<number>(atomCrntScrollY);
+  const [scrollYDelta] = useState<number>(0);
   const camConRef = useRef<CameraControlsType>(null);
 
   function wheelControl(e: any) {
-    console.log("wheelControl e.deltaY :", e.deltaY);
-    setScrollYDelta(e.deltaY); // 이 값을 Dom 의 Props 로 전달
+    const scrollY = crntScrollY + e.deltaY;
+    setCrntScrollY(scrollY);
   }
 
   function limitCamCon() {
@@ -67,6 +70,7 @@ function App() {
         e.preventDefault;
       }}
     >
+      <Domcontents />
       <ResponsiveAppBar />
       <Dom scrollYDelta={scrollYDelta} />
       <Canvas
@@ -103,6 +107,9 @@ function App() {
           <></>
         )}
       </Canvas>
+      {/* <footer>
+        <Form />
+      </footer> */}
     </div>
   );
 }

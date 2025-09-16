@@ -2,7 +2,7 @@
   position: fixed;
   left: 0;
   top: 0;
-  color: red;
+  /* color: ; */
   font-size: 30px;
   width: 100%;
   height: 100%;
@@ -27,17 +27,35 @@
 .section-wrapper > div {
   width: 100%;
   height: 100%;
+  /* opacity: 0.3; */
 }
 
 .section-01 {
-  background-color: red;
-  opacity: 0.3;
+  /* background-color: red; */
+  display: flex;
+  justify-content: left;
+  align-items: end;
 }
+
+.section-box-01 {
+  margin-left: 5%;
+  margin-bottom: 5%;
+}
+.typography-01 {
+  font-size: 70px;
+  margin: 0;
+}
+.typography-02 {
+  font-size: 30px;
+  margin-top: 10px;
+  margin: 0;
+}
+
 .section-02 {
   background-color: blue;
   opacity: 0.3;
 }
+
 .section-03 {
-  background-color: green;
   opacity: 0.3;
 }

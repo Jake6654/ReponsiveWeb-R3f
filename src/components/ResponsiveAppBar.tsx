@@ -11,13 +11,18 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import zIndex from "@mui/material/styles/zIndex";
+import BiotechIcon from "@mui/icons-material/Biotech";
+import { useRecoilState } from "recoil";
+import { atomCrntScrollY } from "../atoms/atoms";
 
-const pages = ["Products", "Pricing", "Blog"];
+const pages = ["Intro", "Learn", "Contact"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function ResponsiveAppBar() {
+  // DomContents 랑 ResponsiveAppBar 의 Dom 의 Z-index 을 올려서
+  //  3D 물체에 가려지지 않게 만들어야함
+  const [setCrntScrollY] = useRecoilState<number>(atomCrntScrollY);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -32,7 +37,20 @@ function ResponsiveAppBar() {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleCloseNavMenu = (event: any, page: string) => {
+    let scrollY = 0;
+
+    switch (page) {
+      case "Intro":
+        break;
+      case "Learn":
+        scrollY = window.innerHeight + 1;
+        break;
+      case "Contact":
+        scrollY = window.innerHeight * 2.0;
+        break;
+    }
+    setCrntScrollY(scrollY);
     setAnchorElNav(null);
   };
 
@@ -48,7 +66,7 @@ function ResponsiveAppBar() {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <BiotechIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
@@ -64,7 +82,7 @@ function ResponsiveAppBar() {
               textDecoration: "none",
             }}
           >
-            LOGO
+            Code 137.5
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -95,13 +113,16 @@ function ResponsiveAppBar() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem
+                  key={page}
+                  onClick={(e: any) => handleCloseNavMenu(e, page)}
+                >
                   <Typography sx={{ textAlign: "center" }}>{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <BiotechIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
@@ -124,7 +145,7 @@ function ResponsiveAppBar() {
             {pages.map((page) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
+                onClick={(e: any) => handleCloseNavMenu(e, page)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page}
