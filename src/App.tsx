@@ -7,7 +7,7 @@ import Balls from "./components/three/Balls";
 import Dom from "./components/Dom";
 import { useRecoilState } from "recoil";
 import { StepState } from "./common/interface";
-import { atomCrntStep, atomCrntScrollY } from "./atoms/atoms";
+import { atomCrntStep, atomCrntScrollY, atomCrntIsDebug } from "./atoms/atoms";
 import { useEffect, useRef, useState } from "react";
 // drei 로 카메라 컨트롤즈를 가져오게되면 타입을 가져올 수 없기 때문에 직접 따로 임포트를 해줘야함
 import CameraControlsType from "camera-controls";
@@ -16,16 +16,23 @@ import ResponsiveAppBar from "./components/ResponsiveAppBar";
 import Domcontents from "./components/DomContents";
 import Form from "./components/Form";
 
-const isDebug = false;
 function App() {
   // Step 과 crntScrollY 값은 전역 상태 단위(atom)으로 설정하여 전역으로 다룰 수 있게 수정
   const [crntStep] = useRecoilState<StepState>(atomCrntStep);
   const [crntScrollY, setCrntScrollY] = useRecoilState<number>(atomCrntScrollY);
-  const [scrollYDelta] = useState<number>(0);
+  const [isDebug] = useRecoilState<boolean>(atomCrntIsDebug);
   const camConRef = useRef<CameraControlsType>(null);
 
   function wheelControl(e: any) {
-    const scrollY = crntScrollY + e.deltaY;
+    let scrollY = crntScrollY + e.deltaY;
+    const minScrollY = 0;
+    const maxScrollY = window.innerHeight * 3;
+
+    if (scrollY > maxScrollY) {
+      scrollY = maxScrollY;
+    } else if (scrollY < minScrollY) {
+      scrollY = minScrollY;
+    }
     setCrntScrollY(scrollY);
   }
 
@@ -34,6 +41,15 @@ function App() {
       // 휠버튼의 동작을 막음으로써 스크롤을 해도 줌인 줌 아웃이 되지 않음
       camConRef.current.mouseButtons.wheel = CameraControlsType.ACTION.NONE;
       camConRef.current.mouseButtons.right = CameraControlsType.ACTION.NONE;
+      // from step 2, the object cannot rotate
+      if (crntStep >= StepState.STEP_2) {
+        camConRef.current.mouseButtons.left = CameraControlsType.ACTION.NONE;
+        // 모바일 터치
+        camConRef.current.touches.one = CameraControlsType.ACTION.NONE;
+      } else {
+        camConRef.current.mouseButtons.left = CameraControlsType.ACTION.ROTATE;
+        camConRef.current.touches.one = CameraControlsType.ACTION.TOUCH_ROTATE;
+      }
     }
   }
   function camConStart() {
@@ -70,9 +86,9 @@ function App() {
         e.preventDefault;
       }}
     >
-      <Domcontents />
+      <Domcontents wheelControl={wheelControl} />
       <ResponsiveAppBar />
-      <Dom scrollYDelta={scrollYDelta} />
+      <Dom />
       <Canvas
         onWheel={wheelControl}
         gl={{ alpha: true }}

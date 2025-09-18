@@ -10,3 +10,8 @@ export const atomCrntScrollY = atom<number>({
   key: "scroll",
   default: 0,
 });
+
+export const atomCrntIsDebug = atom<boolean>({
+  key: "isDebug",
+  default: false,
+});

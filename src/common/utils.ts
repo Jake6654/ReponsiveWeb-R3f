@@ -4,7 +4,7 @@ import { ballCount, velocity } from "./constants";
 
 const hSel = THREE.MathUtils.randInt(0, 2);
 
-export function makeHSLRandomColor() {
+export function makeHSLRandomColor(isAppBar: boolean = false) {
   let h = THREE.MathUtils.randInt(200, 240);
   switch (hSel) {
     case 0:
@@ -18,7 +18,10 @@ export function makeHSLRandomColor() {
       break;
   }
   const s = THREE.MathUtils.randInt(60, 100);
-  const l = THREE.MathUtils.randInt(40, 95);
+  let l = THREE.MathUtils.randInt(40, 95);
+  if (isAppBar) {
+    l = THREE.MathUtils.randInt(20, 50);
+  }
 
   // return "hsl(" + h + "," + s + "," + l + ")";
   return `hsl(${h},${s}%,${l}%)`;

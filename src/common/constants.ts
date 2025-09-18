@@ -25,8 +25,8 @@ export const minFontSize = 0.2;
 export const maxFontSize = 2.5;
 export const xCount = 360;
 export const amplitude = 5;
-export const xDivision = 15;
-export const curveGroupX = (xCount / xDivision) * 0.5;
+export const maxVWidth = 24;
+export const curvePadding = 2;
 
 export const startCurveScale = 1.0;
 export const endCurveScale = 5.0;

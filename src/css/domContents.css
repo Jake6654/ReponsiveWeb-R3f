@@ -20,3 +20,19 @@
   width: 55%;
   opacity: 0;
 }
+
+@media (max-width: 720px) {
+  .section-box-02 {
+    position: fixed;
+    right: -100%;
+    bottom: 10%;
+    font-size: 18px;
+    width: 55%;
+  }
+  .section-box-03 {
+    position: fixed;
+    bottom: 0;
+    top: initial;
+    transform: translate(-50%, 0);
+  }
+}

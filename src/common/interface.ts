@@ -26,6 +26,5 @@ export enum StepState {
   STEP_1 = 1,
   STEP_1_AND_2 = 2,
   STEP_2 = 3,
-  STEP_2_AND_3 = 4,
-  STEP_3 = 5,
+  STEP_3 = 4,
 }

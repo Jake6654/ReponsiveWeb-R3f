@@ -14,7 +14,9 @@ import MenuItem from "@mui/material/MenuItem";
 import zIndex from "@mui/material/styles/zIndex";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import { useRecoilState } from "recoil";
-import { atomCrntScrollY } from "../atoms/atoms";
+import { atomCrntIsDebug, atomCrntScrollY } from "../atoms/atoms";
+import { StepState } from "../common/interface";
+import { makeHSLRandomColor } from "../common/utils";
 
 const pages = ["Intro", "Learn", "Contact"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -22,13 +24,24 @@ const settings = ["Profile", "Account", "Dashboard", "Logout"];
 function ResponsiveAppBar() {
   // DomContents 랑 ResponsiveAppBar 의 Dom 의 Z-index 을 올려서
   //  3D 물체에 가려지지 않게 만들어야함
-  const [setCrntScrollY] = useRecoilState<number>(atomCrntScrollY);
+  const [, setCrntScrollY] = useRecoilState<StepState>(atomCrntScrollY);
+  const [crntIsDebug, setCrntIsDebug] =
+    useRecoilState<boolean>(atomCrntIsDebug);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
+  const [bgColor, setBgColor] = React.useState<null | string>(null);
+
+  React.useEffect(() => {
+    setBgColor(makeHSLRandomColor(true));
+  }, []);
+
+  const toggleDebug = () => {
+    setCrntIsDebug(!crntIsDebug);
+  };
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -61,8 +74,13 @@ function ResponsiveAppBar() {
   return (
     <AppBar
       position="static"
-      // z index 을 올려줘서 항상 바가 나오게 설정
-      style={{ position: "fixed", top: 0, left: 0, zIndex: 1 }}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 2,
+        backgroundColor: bgColor,
+      }}
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
@@ -82,7 +100,7 @@ function ResponsiveAppBar() {
               textDecoration: "none",
             }}
           >
-            Code 137.5
+            Code137.5
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -139,7 +157,7 @@ function ResponsiveAppBar() {
               textDecoration: "none",
             }}
           >
-            LOGO
+            Code137.5
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
@@ -152,36 +170,27 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+          <Box>
+            <Button
+              onClick={toggleDebug}
+              sx={
+                crntIsDebug
+                  ? {
+                      my: 2,
+                      color: "black",
+                      display: "block",
+                      backgroundColor: "white",
+                    }
+                  : {
+                      my: 2,
+                      color: "#999",
+                      display: "block",
+                      backgroundColor: "#777",
+                    }
+              }
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    {setting}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+              Debug Mode
+            </Button>
           </Box>
         </Toolbar>
       </Container>

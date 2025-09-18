@@ -5,6 +5,8 @@ import { styled } from "@mui/system";
 import TextField from "@mui/material/TextField";
 import InputLabel from "@mui/material/InputLabel";
 import Button from "@mui/material/Button";
+import React from "react";
+import { makeHSLRandomColor } from "../common/utils";
 
 const FormGrid = styled(Grid)(() => ({
   display: "flex",
@@ -12,6 +14,11 @@ const FormGrid = styled(Grid)(() => ({
 }));
 
 export default function Form() {
+  const [bgColor, setBgColor] = React.useState<null | string>(null);
+
+  React.useEffect(() => {
+    setBgColor(makeHSLRandomColor(true));
+  }, []);
   return (
     <Grid
       container
@@ -26,15 +33,15 @@ export default function Form() {
     >
       <FormGrid size={{ xs: 12, md: 6 }}>
         <InputLabel>First Name</InputLabel>
-        <TextField id="first-name" rows={4} placeholder="TaeJae(Jay)" />
+        <TextField id="first-name" rows={4} placeholder="Jae-Hyuk(Jake)" />
       </FormGrid>
       <FormGrid size={{ xs: 12, md: 6 }}>
         <InputLabel>Last Name</InputLabel>
-        <TextField id="last-name" rows={4} placeholder="Han" />
+        <TextField id="last-name" rows={4} placeholder="Chang" />
       </FormGrid>
       <FormGrid size={{ xs: 12 }}>
         <InputLabel>Email</InputLabel>
-        <TextField id="email" rows={4} placeholder="137.5lab@gmail.com" />
+        <TextField id="email" rows={4} placeholder="" />
       </FormGrid>
       <FormGrid size={{ xs: 12 }}>
         <InputLabel>Title</InputLabel>
@@ -61,7 +68,10 @@ export default function Form() {
       </FormGrid>
       <FormGrid size={{ xs: 12, md: 2 }}></FormGrid>
       <FormGrid size={{ xs: 12, md: 2 }}>
-        <Button variant="contained" style={{ maxWidth: "100px" }}>
+        <Button
+          variant="contained"
+          style={{ maxWidth: "100px", backgroundColor: bgColor }}
+        >
           Submit
         </Button>
       </FormGrid>

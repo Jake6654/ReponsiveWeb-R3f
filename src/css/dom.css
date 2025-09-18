@@ -38,7 +38,7 @@
 }
 
 .section-box-01 {
-  margin-left: 5%;
+  margin-left: 10%;
   margin-bottom: 5%;
 }
 .typography-01 {
@@ -58,4 +58,13 @@
 
 .section-03 {
   opacity: 0.3;
+}
+
+@media (max-width: 720px) {
+  .typography-01 {
+    font-size: 30px;
+  }
+  .typography-02 {
+    font-size: 16px;
+  }
 }

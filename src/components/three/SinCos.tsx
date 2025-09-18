@@ -9,19 +9,30 @@ import {
   maxFontSize,
   xCount,
   amplitude,
-  xDivision,
-  curveGroupX,
   startCurveScale,
   endCurveScale,
+  maxVWidth,
+  curvePadding,
 } from "../../common/constants";
 
 export default function SinCos() {
-  const { size } = useThree();
+  // size 는 윈도우 단위, viewport 는 three.js 단위이다
+  const { size, viewport } = useThree();
   const crntScrollTop = getScrollTop();
   const curveGroupRef = useRef<THREE.Group>();
+
+  console.log("viewport:", viewport);
+  // 반응형으로 만들기
+  let vWidth = parseInt(viewport.width + "") - curvePadding * 2;
+  if (vWidth > maxVWidth) {
+    vWidth = maxVWidth;
+  }
+
   const points: THREE.Vector3[] = [];
   const pointsGroup: THREE.Vector3[][] = [];
   const textStr = "The Campers Ministry";
+  const xDivision = xCount / vWidth;
+  const curveGroupX = (xCount / xDivision) * 0.5;
 
   const curveGroupScale = THREE.MathUtils.mapLinear(
     crntScrollTop,
