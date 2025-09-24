@@ -32,7 +32,7 @@ export default function SinCos() {
 
   const points: THREE.Vector3[] = [];
   const pointsGroup: THREE.Vector3[][] = [];
-  const textStr = "The Campers Ministry";
+  const textStr = "Creative Coding Lab";
   const xDivision = xCount / vWidth;
   const curveGroupX = (xCount / xDivision) * 0.5;
 
