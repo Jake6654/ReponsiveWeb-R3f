@@ -1,6 +1,6 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { CameraControls } from "@react-three/drei";
+import { CameraControls } from "@react-three/drei/core/CameraControls";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
