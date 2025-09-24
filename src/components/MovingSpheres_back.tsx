@@ -128,7 +128,7 @@ export default function MovingSpheres({ isDebug = false }) {
   const bottomBox = center.y - size.y * 0.5;
   const topBox = center.y + size.y * 0.5;
 
-  function checkEdge(pos: THREE.Vector3, dirVec: THREE.Vector, idx: number) {
+  function checkEdge(pos: THREE.Vector3, dirVec: THREE.Vector3, idx: number) {
     // 가끔 속도가 빨라서 ball 의 포지션이 boundary 를 넘어설때가 있는데 위치를 재조정해주는 코드
 
     // 이제 ballRadius 가 각각 다르니 각 인덱스 마다 다르게 checkEdge 을 해준다
