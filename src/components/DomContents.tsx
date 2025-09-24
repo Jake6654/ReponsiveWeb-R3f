@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import "../css/domContents.css";
 import Form from "./Form";
 
 export default function Domcontents(props: any) {

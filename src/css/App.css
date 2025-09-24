@@ -1,6 +1,6 @@
 html,
 body,
-#root,
+#__next,
 .full-wrapper {
   margin: 0;
   padding: 0;

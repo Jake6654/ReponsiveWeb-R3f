@@ -1,3 +1,5 @@
+"use client";
+
 import * as THREE from "three";
 import { Text, Billboard } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";

@@ -1,3 +1,5 @@
+"use client";
+
 import * as THREE from "three";
 import { IBallProps, StepState } from "../../common/interface";
 import {

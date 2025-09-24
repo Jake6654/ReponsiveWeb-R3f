@@ -1,7 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
-
+import React from "react";
 
 //랜덤 색상
 function makeRandomColor() {
